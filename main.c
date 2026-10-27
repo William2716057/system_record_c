@@ -113,10 +113,22 @@ int main(int argc, char **argv)
     started = 1;
     QueryPerformanceCounter(&t0);
     printf("Recording to %s... Press Ctrl+C to stop.\n", path);
- 
+
+    //for timer
+    uint64_t shown = (uint64_t)-1;
     while (!g_stop) {
         Sleep(10);
- 
+
+	QueryPerformanceCounter(&now);
+	uint64_t secs = (uint64_t)(now.QuadPart - t0.QuadPart) / qpf.QuadPart;
+
+	if (secs != shown) {
+    		shown = secs;
+    		printf("\rRecording: %02u:%02u:%02u",
+           		(unsigned)(secs / 3600), (unsigned)(secs / 60 % 60), (unsigned)(secs % 60));
+    	fflush(stdout);
+}
+
         UINT32 packet = 0;
         while (!g_stop || packet) {
             if (FAILED(IAudioCaptureClient_GetNextPacketSize(capture, &packet)) || packet == 0)
